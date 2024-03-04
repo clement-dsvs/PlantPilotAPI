@@ -1,20 +1,24 @@
-from typing import Union
-
 from fastapi import FastAPI
+from src.db import client
 
 from src.routes import presets_router
 
 app = FastAPI()
 
 
+@app.on_event("startup")
+async def startup_db_client():
+    await client.start_session()
+
+
+@app.on_event("shutdown")
+async def shutdown_db_client():
+    client.close()
+
+
 @app.get("/")
-def read_root():
+def hello_world():
     return {"Hello": "World"}
-
-
-@app.get("/items/{item_id}")
-def read_item(item_id: int, q: Union[str, None] = None):
-    return {"item_id": item_id, "q": q}
 
 
 app.include_router(presets_router, prefix="/presets")

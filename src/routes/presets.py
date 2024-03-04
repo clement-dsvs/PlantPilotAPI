@@ -1,12 +1,29 @@
-from fastapi import APIRouter
-from src.models import Preset, User
-import uuid
+from fastapi import APIRouter, HTTPException
+
+from src.models import Preset
+from src.db import database
 
 router = APIRouter()
 
 
 @router.get("/")
-def get_all_presets():
-    user = User(username='admin', email="admin@eplantcare.com")
-    preset = Preset(uuid=uuid.uuid4().__str__(), name="Preset 1", created_by=user)
-    return {"presets": [preset]}
+async def get_all_presets():
+    collection = ["presets"]
+    return {"presets": collection}
+
+
+@router.post("/")
+async def create_preset(preset: Preset):
+    collection = database["presets"]
+    result = await collection.insert_one(preset.dict())
+    return {"message": "Item inséré avec succès", "inserted_id": str(result.inserted_id)}
+
+
+@router.get("/{preset_uuid}")
+async def get_preset(preset_uuid: str):
+    collection = database["presets"]
+    result = await collection.find_one({"uuid": preset_uuid})
+    if result:
+        return Preset(**result)
+    else:
+        HTTPException(status_code=404, detail="preset not found")

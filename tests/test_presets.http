@@ -1,1 +1,16 @@
-http://localhost:8000/presets
+###
+GET http://localhost:8000/presets
+Accept: application/json
+
+###
+POST http://localhost:8000/presets
+Content-type: application/json
+
+{
+  "uuid": "2345",
+  "name": "Le preset"
+}
+
+###
+GET http://localhost:8000/presets/123456
+Accept: application/json

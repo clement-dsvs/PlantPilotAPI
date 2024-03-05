@@ -1,16 +1,41 @@
-from fastapi import APIRouter, HTTPException
-
+from fastapi import APIRouter, HTTPException, Request
 from src.models import Forum
 from src.db import database
+import datetime
 
 router = APIRouter()
 
 
-@router.get("/login/{username}/{password}")
-async def login(username: str, password: str):
-    collection = database["C_USERS"]
-    result = await collection.find_one({"username": username, "password": password})
-    if result:
-        return True
+@router.get("/get/all")
+async def get_all():
+    collection = database["C_FORUM_TOPICS"]
+    result = []
+    async for item in collection.find({}, {'_id': 0}):
+        result.append(item)
+    collection = database["C_FORUM_MESSAGES"]
+    async for item in collection.find({}, {'_id': 0}):
+        result.append(item)
+    return {"objects": result}
+
+
+@router.get("/new/topic")
+async def create_topic(request: Request):
+    form = await request.form()
+    form = dict(form.items())
+    form["created_at"] = datetime.datetime.now()
+    form["last_message_by"] = None
+    form["last_message_at"] = datetime.datetime.now()
+    form["total_messages"] = 0
+    collection = database["C_FORUM_TOPICS"]
+    topic = await collection.insert_one(form)
+    result = await collection.find_one(form, {'_id': 0})
+    if result is not None:
+        return result.items()
     else:
-        HTTPException(status_code=404, detail="No user with these credentials")
+        return {"error": "Forum topic already exist"}
+
+
+
+@router.get("/new/messages")
+async def create_messages():
+    collection = database["C_FORUM_MESSAGES"]

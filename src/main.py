@@ -1,10 +1,15 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from src.db import client
 
 from src.routes import presets_router, user_router, message_router, topic_router
 
 app = FastAPI()
 
+origins = [
+    "http://localhost",
+    "http://localhost:3000",
+]
 
 @app.on_event("startup")
 async def startup_db_client():
@@ -19,6 +24,15 @@ async def shutdown_db_client():
 @app.get("/")
 def hello_world():
     return {"Hello": "World"}
+
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 app.include_router(presets_router, prefix="/preset")

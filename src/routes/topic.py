@@ -1,12 +1,11 @@
 from fastapi import APIRouter, HTTPException, Request
-from src.models import Forum
 from src.db import database
 import datetime
 
 router = APIRouter()
 
 
-@router.get("/get/all")
+@router.get("/")
 async def get_all():
     collection = database["C_FORUM_TOPICS"]
     result = []
@@ -18,7 +17,7 @@ async def get_all():
     return {"objects": result}
 
 
-@router.get("/new/topic")
+@router.post("/")
 async def create_topic(request: Request):
     form = await request.form()
     form = dict(form.items())
@@ -33,9 +32,3 @@ async def create_topic(request: Request):
         return result.items()
     else:
         return {"error": "Forum topic already exist"}
-
-
-
-@router.get("/new/messages")
-async def create_messages():
-    collection = database["C_FORUM_MESSAGES"]

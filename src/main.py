@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from src.db import client
 
-from src.routes import presets_router, user_router, forum_router
+from src.routes import presets_router, user_router, message_router, topic_router
 
 app = FastAPI()
 
@@ -21,6 +21,7 @@ def hello_world():
     return {"Hello": "World"}
 
 
-app.include_router(presets_router, prefix="/presets")
+app.include_router(presets_router, prefix="/preset")
 app.include_router(user_router, prefix="/user")
-app.include_router(forum_router, prefix="/forum")
+app.include_router(message_router, prefix="/message")
+app.include_router(topic_router, prefix="/topic")

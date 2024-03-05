@@ -26,4 +26,4 @@ async def get_preset(preset_uuid: str):
     if result:
         return Preset(**result)
     else:
-        HTTPException(status_code=404, detail="preset not found")
+        raise HTTPException(status_code=404, detail="preset not found")

@@ -1,3 +1,4 @@
+from bson import ObjectId
 from fastapi import APIRouter, HTTPException, Request
 from src.db import database
 import datetime
@@ -11,10 +12,7 @@ async def get_all():
     result = []
     async for item in collection.find({}, {'_id': 0}):
         result.append(item)
-    collection = database["C_FORUM_MESSAGES"]
-    async for item in collection.find({}, {'_id': 0}):
-        result.append(item)
-    return {"objects": result}
+    return result
 
 
 @router.post("/")
@@ -32,3 +30,12 @@ async def create_topic(request: Request):
         return result.items()
     else:
         return {"error": "Forum topic already exist"}
+
+
+@router.get("/{topic_id}")
+async def get_topic(topic_id: str):
+    collection = database["C_FORUM_TOPICS"]
+    topic = await collection.find_one({"id": topic_id})
+    if topic is None:
+        return HTTPException(status_code=404, detail="topic not found")
+    return topic
